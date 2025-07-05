@@ -1,0 +1,88 @@
+export function evaluateFNMA(lead) {
+  const { fico, downPaymentPercent, dti } = lead;
+
+  const meetsFico = fico >= 620;
+  const meetsDown = downPaymentPercent >= 3;
+  const meetsDTI = dti <= 50;
+
+  const eligible = meetsFico && meetsDown && meetsDTI;
+
+  return {
+    program: 'Fannie Mae',
+    eligible,
+    reasons: [
+      !meetsFico ? 'FICO below 620' : null,
+      !meetsDown ? 'Down payment below 3%' : null,
+      !meetsDTI ? 'DTI exceeds 50%' : null,
+    ].filter(Boolean),
+  };
+}
+
+export function evaluateFHA(lead) {
+  const { fico, downPaymentPercent, income, housing = 0, otherDebt = 0 } = lead;
+
+  const frontRatio = income > 0 ? (housing / income) * 100 : 0;
+  const backRatio = income > 0 ? ((housing + otherDebt) / income) * 100 : 0;
+
+  const meetsFico = fico >= 580;
+  const meetsDown = downPaymentPercent >= 3.5;
+  const meetsFront = frontRatio <= 46.9;
+  const meetsBack = backRatio <= 56.9;
+
+  const eligible = meetsFico && meetsDown && meetsFront && meetsBack;
+
+  return {
+    program: 'FHA',
+    eligible,
+    frontRatio: frontRatio.toFixed(1),
+    backRatio: backRatio.toFixed(1),
+    reasons: [
+      !meetsFico ? 'FICO below 580' : null,
+      !meetsDown ? 'Down payment below 3.5%' : null,
+      !meetsFront ? 'Housing ratio exceeds 46.9%' : null,
+      !meetsBack ? 'Total DTI exceeds 56.9%' : null,
+    ].filter(Boolean),
+  };
+}
+export function evaluateVA(lead) {
+  const { fico, downPaymentPercent, income, housing = 0, otherDebt = 0 } = lead;
+
+  const dti = income > 0 ? ((housing + otherDebt) / income) * 100 : 0;
+  const meetsFico = fico >= 580;
+  const meetsDTI = dti <= 60;
+
+  const eligible = meetsFico && meetsDTI;
+
+  return {
+    program: 'VA',
+    eligible,
+    dti: dti.toFixed(1),
+    reasons: [
+      !meetsFico ? 'FICO below 580' : null,
+      !meetsDTI ? 'DTI exceeds 60%' : null,
+    ].filter(Boolean),
+  };
+}
+export function evaluateChange(lead) {
+  const { fico, downPaymentPercent, income, housing = 0, otherDebt = 0 } = lead;
+
+  const dti = income > 0 ? ((housing + otherDebt) / income) * 100 : 0;
+
+  const meetsFico = fico >= 560;
+  const meetsDown = downPaymentPercent >= 10;
+  const meetsDTI = dti <= 55;
+
+  const eligible = meetsFico && meetsDown && meetsDTI;
+
+  return {
+    program: 'Change Wholesale',
+    eligible,
+    dti: dti.toFixed(1),
+    reasons: [
+      !meetsFico ? 'FICO below 560' : null,
+      !meetsDown ? 'Down payment below 10%' : null,
+      !meetsDTI ? 'DTI exceeds 55%' : null,
+    ].filter(Boolean),
+  };
+}
+
